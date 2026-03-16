@@ -1,73 +1,52 @@
-# React + TypeScript + Vite
+# BILT 2.0 Sign-up Bonus Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small web app to track your progress toward the BILT credit card sign-up bonus. Upload your transaction CSV from Bilt, set your card activation date, and see how much eligible spend you have and how much time you have left.
 
-Currently, two official plugins are available:
+**Disclaimer:** This is an unofficial tracking tool and is not associated with BILT Rewards. Your data stays in your browser and is never sent to any server.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Progress tracking** – See your eligible spend vs the $4,000 target and a progress bar
+- **CSV import** – Upload a transaction CSV exported from the Bilt app (Wallet → View Recent transactions → Download as CSV). Uses columns: Transaction Date, Description, Amount
+- **Eligible spend only** – Automatically excludes Balance Transfers, Annual Fee, Bilt Rewards/Payment - Bilt Housing, and general Payment transactions
+- **90-day deadline** – Set your card activation date and see days left until the 3-month bonus window ends
+- **Bonus rewards preview** – 50,000 Bilt Points and Gold Status benefit cards once you have data
+- **Celebration** – Confetti when you reach the $4,000 target
+- **Privacy-first** – All data stored in your browser (localStorage). Clear everything anytime with the Clear all button
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech stack
 
-## Expanding the ESLint configuration
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui (Radix), Lucide icons
+- PapaParse (CSV), canvas-confetti
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open [http://localhost:5173](http://localhost:5173).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Build for production:**
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
 ```
+
+## Project structure
+
+- `src/App.tsx` – Main layout and state
+- `src/components/dashboard/` – ProgressCard, TutorialCard, BenefitCards, TransactionTable, CsvUploader
+- `src/components/ui/` – Card, Button, Input, Table, Tooltip, etc.
+- `src/hooks/` – useTransactions, useActivationDate (localStorage persistence)
+- `src/lib/` – csvParser, utils (cn, formatCurrency)
+- `src/types/` – Transaction type
+
+## License
+
+Private / personal use.
