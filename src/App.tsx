@@ -1,120 +1,105 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect } from "react"
+import confetti from "canvas-confetti"
+import { useTransactions } from "@/hooks/useTransactions"
+import { useActivationDate } from "@/hooks/useActivationDate"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { ProgressCard } from "@/components/dashboard/ProgressCard"
+import { TutorialCard } from "@/components/dashboard/TutorialCard"
+import { BenefitCards } from "@/components/dashboard/BenefitCards"
+import { TransactionTable } from "@/components/dashboard/TransactionTable"
+import { CsvUploader } from "@/components/dashboard/CsvUploader"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    transactions,
+    deleteTransaction,
+    importTransactions,
+    clearTransactions,
+    totalSpend,
+    remainingSpend,
+    percentProgress,
+    targetSpend,
+  } = useTransactions()
+  const {
+    activationDate,
+    setActivationDate,
+    clearActivationDate,
+    deadline,
+    daysLeft,
+    isPastDeadline,
+  } = useActivationDate()
+
+  useEffect(() => {
+    if (totalSpend >= targetSpend) {
+      const CONFETTI_LOOP_MS = 900
+      const interval = setInterval(() => {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: {
+            x: Math.random(),
+            y: Math.random() * 0.5 + 0.25,
+          },
+        })
+      }, CONFETTI_LOOP_MS)
+      return () => clearInterval(interval)
+    }
+  }, [totalSpend, targetSpend])
+
+  const handleClearAll = () => {
+    clearTransactions()
+    clearActivationDate()
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <TooltipProvider delayDuration={0}>
+      <div className="min-h-screen bg-background">
+        <main className="max-w-3xl mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold tracking-tight text-center">
+          💰 BILT 2.0 Sign-up Bonus Tracker
+        </h1>
+        <p className="text-xs text-muted-foreground text-center -mt-2 space-y-1">
+          <span className="block">Disclaimer: This is just a tracking tool and not officially associated with BILT Rewards in any capacity.</span>
+          <span className="block">Your data is stored only in the browser and is never collected. You can clear it at any time with the Clear all button.</span>
+        </p>
 
-      <div className="ticks"></div>
+        <ProgressCard
+          totalSpend={totalSpend}
+          targetSpend={targetSpend}
+          remainingSpend={remainingSpend}
+          percentProgress={percentProgress}
+          onClear={handleClearAll}
+          hasTransactions={transactions.length > 0}
+          activationDate={activationDate}
+          onActivationDateChange={setActivationDate}
+          deadline={deadline}
+          daysLeft={daysLeft}
+          isPastDeadline={isPastDeadline}
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {transactions.length === 0 ? (
+          <TutorialCard />
+        ) : (
+          <div className="space-y-3">
+            {totalSpend >= targetSpend && (
+              <p className="text-center text-foreground font-medium">
+                Congrats! You unlocked your rewards.
+              </p>
+            )}
+            <h2 className="text-lg font-semibold">Bonus Rewards</h2>
+            <BenefitCards />
+          </div>
+        )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <CsvUploader onImport={importTransactions} />
+
+        <TransactionTable
+          transactions={transactions}
+          onDelete={deleteTransaction}
+        />
+      </main>
+      </div>
+    </TooltipProvider>
   )
 }
 
