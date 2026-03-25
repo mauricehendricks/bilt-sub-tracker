@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import confetti from "canvas-confetti"
 import { useTransactions } from "@/hooks/useTransactions"
 import { useActivationDate } from "@/hooks/useActivationDate"
@@ -29,20 +29,64 @@ function App() {
     isPastDeadline,
   } = useActivationDate()
 
+  const confettiIntervalRef = useRef<number | null>(null)
+  const shouldRunConfettiRef = useRef(false)
+
+  const resetConfetti = () => {
+    ;(confetti as unknown as { reset?: () => void }).reset?.()
+  }
+
+  const stopConfettiLoop = () => {
+    if (confettiIntervalRef.current !== null) {
+      clearInterval(confettiIntervalRef.current)
+      confettiIntervalRef.current = null
+    }
+    resetConfetti()
+  }
+
+  const startConfettiLoop = () => {
+    if (confettiIntervalRef.current !== null) return
+
+    // Clear any leftover canvas before starting a new animation.
+    resetConfetti()
+
+    const CONFETTI_LOOP_MS = 900
+    confettiIntervalRef.current = window.setInterval(() => {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: {
+          x: Math.random(),
+          y: Math.random() * 0.5 + 0.25,
+        },
+      })
+    }, CONFETTI_LOOP_MS)
+  }
+
   useEffect(() => {
-    if (totalSpend >= targetSpend) {
-      const CONFETTI_LOOP_MS = 900
-      const interval = setInterval(() => {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: {
-            x: Math.random(),
-            y: Math.random() * 0.5 + 0.25,
-          },
-        })
-      }, CONFETTI_LOOP_MS)
-      return () => clearInterval(interval)
+    shouldRunConfettiRef.current = totalSpend >= targetSpend
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        stopConfettiLoop()
+        return
+      }
+
+      if (shouldRunConfettiRef.current) startConfettiLoop()
+    }
+
+    // Start/stop based on current target and visibility state.
+    if (!shouldRunConfettiRef.current) {
+      stopConfettiLoop()
+    } else if (document.visibilityState === "visible") {
+      startConfettiLoop()
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      stopConfettiLoop()
     }
   }, [totalSpend, targetSpend])
 
