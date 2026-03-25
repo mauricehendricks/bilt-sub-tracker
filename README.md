@@ -8,10 +8,9 @@ A small web app to track your progress toward the BILT credit card sign-up bonus
 
 - **Progress tracking** – See your eligible spend vs the $4,000 target and a progress bar
 - **CSV import** – Upload a transaction CSV exported from the Bilt app (Wallet → View Recent transactions → Download as CSV). Uses columns: Transaction Date, Description, Amount
-- **Eligible spend only** – Automatically excludes Balance Transfers, Annual Fee, Bilt Rewards/Payment - Bilt Housing, and general Payment transactions
+- **Eligible spend only** – Automatically excludes Balance Transfers, Annual Fee, Bilt Rewards/Payment - Bilt Housing, and general Payment transactions. Also excludes any rows where `Amount` is negative (leading `-`), which represent non-spend credits such as refunds/payments
 - **90-day deadline** – Set your card activation date and see days left until the 3-month bonus window ends
 - **Bonus rewards preview** – 50,000 Bilt Points and Gold Status benefit cards once you have data
-- **Celebration** – Confetti when you reach the $4,000 target
 - **Privacy-first** – All data stored in your browser (localStorage). Clear everything anytime with the Clear all button
 
 ## Tech stack
